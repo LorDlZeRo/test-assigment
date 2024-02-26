@@ -1,37 +1,24 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import UserSurvey from '../views/UserSurvey.vue';
+import KanbanBoard from '../views/KanbanBoard.vue';
 
-Vue.use(VueRouter)
-
+Vue.use(VueRouter);
 
 const routes = [
-    { 
-      path: '/', 
-      component: {
-          template: `
-          <div>
-              <h2>Main page</h2>
-              <p>Это главная страница с прямым HTML контентом.</p>
-          </div>
-          `
-      }
-    },
-    { 
-      path: '/about', 
-      component: {
-          template: `
-          <div>
-              <h2>About Page</h2>
-              <p>Это страница О нас с прямым HTML контентом.</p>
-          </div>
-          `
-      }
-    }
-  ]
+  {
+    path: '/',
+    component: KanbanBoard,
+  },
+  {
+    path: '/about',
+    component: UserSurvey,
+  },
+];
 
 const router = new VueRouter({
   mode: 'history',
   routes,
 });
 
-export default router
+export default router;
