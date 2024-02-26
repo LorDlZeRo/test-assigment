@@ -116,7 +116,6 @@ export default {
   </div>
 </template>
 <style scoped>
-
 .block {
   width: 100%;
   height: 80vh;
