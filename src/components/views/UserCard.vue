@@ -5,6 +5,7 @@ export default {
   name: 'UserCard',
   props: {
     handleDragStart: Function,
+    handlerClick: Function,
   },
   data() {
     return {
@@ -12,11 +13,6 @@ export default {
       isDragging: false,
       counter: 0,
     };
-  },
-  methods: {
-    handlerClick() {
-      this.$router.push({ path: '/about', query: { id: this.user?.info.seed } });
-    },
   },
   created() {
     axios.get('https://randomuser.me/api')
@@ -31,19 +27,14 @@ export default {
 };
 </script>
 <template>
-  <div class="user-card"
-   :id="user?.info.seed"
-   :draggable="true"
-   @dragstart="handleDragStart"
-   @click="handlerClick"
+  <button class="user-card btn btn-outline-success w-100 mb-2"
+    data-id="user_card"
+    :id="user?.info.seed"
+    :draggable="true"
+    @dragstart="handleDragStart"
+    @click="handlerClick"
   >
     {{ user?.results[0].name.title }} :
     {{ user?.results[0].name.first }} {{ user?.results[0].name.last }}
-  </div>
+  </button>
 </template>
-<style scoped>
-.user-card {
-    margin-top: 5px;
-    background-color:rgb(126, 221, 109);
-  }
-</style>

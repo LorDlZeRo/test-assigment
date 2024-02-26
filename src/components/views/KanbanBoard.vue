@@ -8,6 +8,7 @@ export default {
     return {
       draggable: 'draggable',
       isDropped: false,
+      draggableContainer: null,
       elementId: null,
       parentElement: null,
       isFirstContainerEmpty: false,
@@ -20,33 +21,40 @@ export default {
   methods: {
     handlerClick(event) {
       const { id } = event.target;
+      console.log('!!');
       this.$router.push({ path: '/about', query: { id } });
     },
     handleDragStart(event) {
       event.dataTransfer.setData('text/html', event.target.outerHTML);
-      this.parentElement = event.target.parentElement.className;
+      this.parentElement = event.target.parentElement.getAttribute('data-id');
       this.isDropped = false;
       this.elementId = event.target.id;
     },
     handleDrop(event) {
-      event.preventDefault();
+      event.stopPropagation();
       const { target } = event;
       const data = event.dataTransfer.getData('text/html');
       this.isDropped = true;
-      if (target.className !== this.parentElement && target.className !== 'user-card') {
+      this.draggableContainer = target.getAttribute('data-id');
+      if (target.getAttribute('data-id') !== this.parentElement && target.getAttribute('data-id') !== 'user_card') {
         target.innerHTML += data;
         target.addEventListener('dragstart', this.handleDragStart);
-        target.addEventListener('click', this.handlerClick);
-      } else if (target.className === 'user-card') {
+        target.childNodes.forEach((element) => element.addEventListener('click', this.handlerClick));
+      } else if (target.getAttribute('data-id') === 'user_card') {
         target.parentElement.innerHTML += data;
+        this.isDropped = true;
+      } else {
+        this.isDropped = true;
       }
     },
     addNewUserCard() {
       const { container } = this.$refs;
+
       const NewUserCardComponent = Vue.extend(UserCard);
       const newUserCardInstance = new NewUserCardComponent({
         propsData: {
           handleDragStart: this.handleDragStart,
+          handlerClick: this.handlerClick,
         },
       });
       newUserCardInstance.$store = this.$store;
@@ -55,7 +63,6 @@ export default {
     },
 
     updateUser(userInfo) {
-      console.log('123123123');
       if (userInfo) {
         this.$store.dispatch('updateUser', userInfo);
       }
@@ -65,10 +72,10 @@ export default {
 
     isDropped(value) {
       if (value) {
-        const block = document.querySelector(`.${this.parentElement}`).childNodes;
-        const firstContainer = document.querySelector('.div-1').childNodes;
+        const block = document.querySelector(`[data-id=${this.parentElement}`).childNodes;
+        const firstContainer = document.querySelector('[data-id="div-1"]').childNodes;
         block.forEach((element) => {
-          if (element.id === this.elementId) {
+          if (element.id === this.elementId && this.draggableContainer !== this.parentElement) {
             element.remove();
           }
         });
@@ -85,60 +92,36 @@ export default {
 </script>
 
 <template>
-  <div id="app" class="main-container mt-3 d-flex justify-content-center align-items-center">
-    <router-view></router-view>
-    <b-card-group deck class="container d-flex justify-content-space-evenly">
-      <b-card bg-variant="info" text-variant="white" class="text-center custom-card">
-        <div class="div-1" @drop="handleDrop" @dragover.prevent ref="container">
+  <div id="app" class="container mt-5">
+    <b-card-group deck class="row">
+      <b-card bg-variant="info" class="col-md-4">
+        <div class="block" data-id="div-1" @drop="handleDrop" @dragover.prevent ref="container">
           <UserCard
             :updateUser="updateUser"
             :handleDragStart="handleDragStart"
+            :handlerClick="handlerClick"
             v-for="item, index in 4"
             :key="index"
             :index="index"
            />
         </div>
       </b-card>
-      <b-card bg-variant="warning" text-variant="white" class="text-center custom-card">
-        <div class="div-2" @drop="handleDrop" @dragover.prevent></div>
+      <b-card bg-variant="warning" class="col-md-4">
+        <div class="block" data-id="div-2" @drop="handleDrop" @dragover.prevent></div>
       </b-card>
-      <b-card bg-variant="danger" text-variant="white" class="text-center custom-card">
-        <div class="div" @drop="handleDrop" @dragover.prevent></div>
+      <b-card bg-variant="danger" class="col-md-4">
+        <div class="block" data-id="div-3" @drop="handleDrop" @dragover.prevent></div>
       </b-card>
     </b-card-group>
   </div>
 </template>
 <style scoped>
-.container {
-  width: 90%;
-  height: 800px;
-}
-.main-container {
-  background-color: aquamarine;
-}
-.div-1 {
-  width: 100%;
-  height: 100%;
-  background-color:cadetblue;
-}
 
-.div-2 {
+.block {
   width: 100%;
-  height: 100%;
-  background-color:cadetblue;
-}
-
-.div {
-  width: 100%;
-  height: 100%;
-  background-color:cadetblue;
-}
-.draggable {
-
-  background-color:rgb(221, 71, 71);
-}
-.custom-card {
-  width: 300px;
+  height: 80vh;
+  background-color:rgb(253, 253, 253);
+  padding: 10px;
 }
 
 </style>

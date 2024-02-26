@@ -23,7 +23,3 @@ export default {
   <p>{{ userInfo }}</p>
   </div>
 </template>
-
-<style scoped>
-
-</style>
