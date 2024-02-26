@@ -34,6 +34,8 @@ export default {
     @dragstart="handleDragStart"
     @click="handlerClick"
   >
+    <img :id="user?.info.seed" :src="user?.results[0].picture.medium" alt="Фото" :draggable="false">
+    <hr>
     {{ user?.results[0].name.title }} :
     {{ user?.results[0].name.first }} {{ user?.results[0].name.last }}
   </button>

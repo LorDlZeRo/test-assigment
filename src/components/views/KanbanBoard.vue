@@ -21,7 +21,6 @@ export default {
   methods: {
     handlerClick(event) {
       const { id } = event.target;
-      console.log('!!');
       this.$router.push({ path: '/about', query: { id } });
     },
     handleDragStart(event) {
@@ -33,6 +32,7 @@ export default {
     handleDrop(event) {
       event.stopPropagation();
       const { target } = event;
+      target.childNodes.forEach((element) => element.addEventListener('click', this.handlerClick));
       const data = event.dataTransfer.getData('text/html');
       this.isDropped = true;
       this.draggableContainer = target.getAttribute('data-id');
@@ -42,9 +42,10 @@ export default {
         target.childNodes.forEach((element) => element.addEventListener('click', this.handlerClick));
       } else if (target.getAttribute('data-id') === 'user_card') {
         target.parentElement.innerHTML += data;
+        target.childNodes.forEach((element) => element.addEventListener('click', this.handlerClick));
         this.isDropped = true;
       } else {
-        this.isDropped = true;
+        this.isDropped = false;
       }
     },
     addNewUserCard() {
@@ -75,7 +76,9 @@ export default {
         const block = document.querySelector(`[data-id=${this.parentElement}`).childNodes;
         const firstContainer = document.querySelector('[data-id="div-1"]').childNodes;
         block.forEach((element) => {
-          if (element.id === this.elementId && this.draggableContainer !== this.parentElement) {
+          const elementsId = element.id === this.elementId;
+          const elementsDataId = this.draggableContainer !== this.parentElement;
+          if (elementsId && elementsDataId && this.draggableContainer) {
             element.remove();
           }
         });
@@ -92,7 +95,7 @@ export default {
 </script>
 
 <template>
-  <div id="app" class="container mt-5">
+  <div id="app" class="container mt-2">
     <b-card-group deck class="row">
       <b-card bg-variant="info" class="col-md-4">
         <div class="block" data-id="div-1" @drop="handleDrop" @dragover.prevent ref="container">
@@ -118,9 +121,10 @@ export default {
 <style scoped>
 .block {
   width: 100%;
-  height: 80vh;
+  min-height: 90vh;
   background-color:rgb(253, 253, 253);
   padding: 10px;
+  border-radius: 5px;
 }
 
 </style>
