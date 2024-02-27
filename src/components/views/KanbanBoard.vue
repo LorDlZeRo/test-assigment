@@ -11,7 +11,7 @@ export default {
       previousContainer: null,
       isFirstContainerEmpty: false,
       handleDragEnterElement: null,
-      dataIdArr: ['div-1', 'div-2', 'div-3'],
+      containersDataId: ['div-1', 'div-2', 'div-3'],
       dropableContainer: null,
     };
   },
@@ -24,7 +24,7 @@ export default {
       event.preventDefault();
       const { target } = event;
 
-      this.dataIdArr.forEach((element) => {
+      this.containersDataId.forEach((element) => {
         if (target.getAttribute('data-id') === element) {
           this.dropableContainer = target;
         }
