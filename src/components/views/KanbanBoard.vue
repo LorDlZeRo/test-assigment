@@ -6,12 +6,13 @@ export default {
   name: 'KanbanBoard',
   data() {
     return {
-      draggable: 'draggable',
       isDropped: false,
-      draggableContainer: null,
-      elementId: null,
-      parentElement: null,
+      droppedElementId: null,
+      previousContainer: null,
       isFirstContainerEmpty: false,
+      handleDragEnterElement: null,
+      dataIdArr: ['div-1', 'div-2', 'div-3'],
+      dropableContainer: null,
     };
   },
   components: {
@@ -19,33 +20,40 @@ export default {
   },
 
   methods: {
+    handleDragEnter(event) {
+      event.preventDefault();
+      const { target } = event;
+
+      this.dataIdArr.forEach((element) => {
+        if (target.getAttribute('data-id') === element) {
+          this.dropableContainer = target;
+        }
+      });
+    },
     handlerClick(event) {
       const { id } = event.target;
       this.$router.push({ path: '/about', query: { id } });
     },
     handleDragStart(event) {
-      event.dataTransfer.setData('text/html', event.target.outerHTML);
-      this.parentElement = event.target.parentElement.getAttribute('data-id');
-      this.isDropped = false;
-      this.elementId = event.target.id;
+      const data = {
+        element: event.target.outerHTML,
+        dataId: event.target.id,
+      };
+      const jsonData = JSON.stringify(data);
+      event.dataTransfer.setData('text/html', jsonData);
+      this.previousContainer = event.target.parentElement;
     },
     handleDrop(event) {
       event.stopPropagation();
-      const { target } = event;
-      target.childNodes.forEach((element) => element.addEventListener('click', this.handlerClick));
-      const data = event.dataTransfer.getData('text/html');
-      this.isDropped = true;
-      this.draggableContainer = target.getAttribute('data-id');
-      if (target.getAttribute('data-id') !== this.parentElement && target.getAttribute('data-id') !== 'user_card') {
-        target.innerHTML += data;
-        target.addEventListener('dragstart', this.handleDragStart);
-        target.childNodes.forEach((element) => element.addEventListener('click', this.handlerClick));
-      } else if (target.getAttribute('data-id') === 'user_card') {
-        target.parentElement.innerHTML += data;
-        target.childNodes.forEach((element) => element.addEventListener('click', this.handlerClick));
+      if (this.previousContainer !== this.dropableContainer) {
+        const draggedElement = JSON.parse(event.dataTransfer.getData('text/html'));
         this.isDropped = true;
-      } else {
-        this.isDropped = false;
+        this.droppedElementId = draggedElement.dataId;
+        this.dropableContainer.innerHTML += draggedElement.element;
+        this.dropableContainer.childNodes.forEach((element) => {
+          element.addEventListener('dragstart', this.handleDragStart);
+          element.addEventListener('click', this.handlerClick);
+        });
       }
     },
     addNewUserCard() {
@@ -73,21 +81,17 @@ export default {
 
     isDropped(value) {
       if (value) {
-        const block = document.querySelector(`[data-id=${this.parentElement}`).childNodes;
         const firstContainer = document.querySelector('[data-id="div-1"]').childNodes;
-        block.forEach((element) => {
-          const elementsId = element.id === this.elementId;
-          const elementsDataId = this.draggableContainer !== this.parentElement;
-          if (elementsId && elementsDataId && this.draggableContainer) {
+        this.previousContainer.childNodes.forEach((element) => {
+          if (element.id === this.droppedElementId) {
             element.remove();
+            this.isDropped = false;
+          }
+
+          if (firstContainer.length === 0) {
+            this.addNewUserCard();
           }
         });
-        if (firstContainer.length === 0) {
-          this.isFirstContainerEmpty = true;
-          this.addNewUserCard();
-        } else {
-          this.isFirstContainerEmpty = false;
-        }
       }
     },
   },
@@ -98,7 +102,8 @@ export default {
   <div id="app" class="container mt-2">
     <b-card-group deck class="row">
       <b-card bg-variant="info" class="col-md-4">
-        <div class="block" data-id="div-1" @drop="handleDrop" @dragover.prevent ref="container">
+        <div class="block" data-id="div-1" @drop="handleDrop" @dragenter="handleDragEnter"
+        @dragover.prevent ref="container">
           <UserCard
             :updateUser="updateUser"
             :handleDragStart="handleDragStart"
@@ -110,10 +115,12 @@ export default {
         </div>
       </b-card>
       <b-card bg-variant="warning" class="col-md-4">
-        <div class="block" data-id="div-2" @drop="handleDrop" @dragover.prevent></div>
+        <div class="block" data-id="div-2" @drop="handleDrop"
+        @dragover.prevent @dragenter="handleDragEnter"></div>
       </b-card>
       <b-card bg-variant="danger" class="col-md-4">
-        <div class="block" data-id="div-3" @drop="handleDrop" @dragover.prevent></div>
+        <div class="block" data-id="div-3" @drop="handleDrop"
+        @dragover.prevent @dragenter="handleDragEnter"></div>
       </b-card>
     </b-card-group>
   </div>
