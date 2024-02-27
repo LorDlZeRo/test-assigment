@@ -9,8 +9,6 @@ export default {
       isDropped: false,
       droppedElementId: null,
       previousContainer: null,
-      isFirstContainerEmpty: false,
-      handleDragEnterElement: null,
       containersDataId: ['div-1', 'div-2', 'div-3'],
       dropableContainer: null,
     };
