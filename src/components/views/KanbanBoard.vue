@@ -11,12 +11,15 @@ export default {
       previousContainer: null,
       containersDataId: ['div-1', 'div-2', 'div-3'],
       dropableContainer: null,
+      firstContainer: null,
     };
   },
   components: {
     UserCard,
   },
-
+  mounted() {
+    this.firstContainer = document.querySelector(`[data-id="${this.containersDataId[0]}"]`);
+  },
   methods: {
     handleDragEnter(event) {
       event.preventDefault();
@@ -55,8 +58,6 @@ export default {
       }
     },
     addNewUserCard() {
-      const { container } = this.$refs;
-
       const NewUserCardComponent = Vue.extend(UserCard);
       const newUserCardInstance = new NewUserCardComponent({
         propsData: {
@@ -66,7 +67,7 @@ export default {
       });
       newUserCardInstance.$store = this.$store;
       newUserCardInstance.$mount();
-      container.appendChild(newUserCardInstance.$el);
+      this.firstContainer.appendChild(newUserCardInstance.$el);
     },
 
     updateUser(userInfo) {
@@ -76,20 +77,17 @@ export default {
     },
   },
   watch: {
-
     isDropped(value) {
       if (value) {
-        const firstContainer = document.querySelector('[data-id="div-1"]').childNodes;
         this.previousContainer.childNodes.forEach((element) => {
           if (element.id === this.droppedElementId) {
             element.remove();
             this.isDropped = false;
           }
-
-          if (firstContainer.length === 0) {
-            this.addNewUserCard();
-          }
         });
+        if (this.firstContainer.childNodes.length === 0) {
+          this.addNewUserCard();
+        }
       }
     },
   },
@@ -97,37 +95,31 @@ export default {
 </script>
 
 <template>
-  <div id="app" class="container mt-2">
-    <b-card-group deck class="row">
-      <b-card bg-variant="info" class="col-md-4">
-        <div class="block" data-id="div-1" @drop="handleDrop" @dragenter="handleDragEnter"
-        @dragover.prevent ref="container">
-          <UserCard
-            :updateUser="updateUser"
-            :handleDragStart="handleDragStart"
-            :handlerClick="handlerClick"
-            v-for="item, index in 4"
-            :key="index"
-            :index="index"
-           />
-        </div>
-      </b-card>
-      <b-card bg-variant="warning" class="col-md-4">
-        <div class="block" data-id="div-2" @drop="handleDrop"
-        @dragover.prevent @dragenter="handleDragEnter"></div>
-      </b-card>
-      <b-card bg-variant="danger" class="col-md-4">
-        <div class="block" data-id="div-3" @drop="handleDrop"
-        @dragover.prevent @dragenter="handleDragEnter"></div>
-      </b-card>
-    </b-card-group>
+  <div id="app" class="container pt-5">
+    <v-layout row wrap>
+      <v-flex xs4 v-for="containerId in containersDataId" :key="containerId">
+        <v-card>
+          <div class="block" :data-id="containerId" @drop="handleDrop"
+              @dragenter="handleDragEnter"
+              @dragover.prevent ref="container"
+            >
+              <template v-if="containerId === containersDataId[0]">
+                <UserCard v-for="index in 4" :key="index" :index="index"
+                    :updateUser="updateUser"
+                    :handleDragStart="handleDragStart"
+                    :handlerClick="handlerClick"
+                  />
+              </template>
+            </div>
+        </v-card>
+      </v-flex>
+    </v-layout>
   </div>
 </template>
 <style scoped>
 .block {
   width: 100%;
   min-height: 90vh;
-  background-color:rgb(253, 253, 253);
   padding: 10px;
   border-radius: 5px;
 }

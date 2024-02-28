@@ -37,18 +37,20 @@ export default {
 </script>
 <template>
   <div v-if="userInfo">
-    <div class="container mt-5">
-      <h2 class="mb-4">Анкета</h2>
+    <div class="container pt-5">
+      <h2 class="mb-4 text-white">Анкета</h2>
       <div class="card">
         <div class="card-body">
-          <button class="btn btn-secondary mb-3" @click="goBack">Назад</button>
+          <v-btn color="primary" outlined class="mb-3" @click="goBack">
+            Назад
+          </v-btn>
           <div class="row">
             <div class="col-md-4">
               <img :src="userInfo[0]?.results[0].picture.large" alt="Фото" class="img-fluid mb-3">
             </div>
             <div class="col-md-8">
               <h2>
-                  {{ `${userInfo[0]?.results[0].name.title}.
+                {{ `${userInfo[0]?.results[0].name.title}.
                 ${userInfo[0]?.results[0].name.first}
                 ${userInfo[0]?.results[0].name.last}` }}
               </h2>
@@ -68,7 +70,7 @@ export default {
               <p><strong>Location Coordinates:</strong> Lat:
                 {{ userInfo[0]?.results[0].location.coordinates.latitude }},
                 Long: {{ userInfo[0]?.results[0].location.coordinates.longitude }}
-                </p>
+              </p>
             </div>
           </div>
         </div>
