@@ -42,7 +42,7 @@
       "parser": "@babel/eslint-parser"
     },
     "rules": {
-      "linebreak-style": ["error", "windows"]
+      "linebreak-style": ["error", "ignore"]
     }
   },
   "browserslist": [
