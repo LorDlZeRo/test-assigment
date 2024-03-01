@@ -4,11 +4,16 @@ export default {
   data() {
     return {
       userInfo: null,
+      person: null,
     };
   },
   methods: {
     goBack() {
       this.$router.push('/');
+    },
+    filterPersonsData(id) {
+      this.userInfo = this.usersInfo.filter((elem) => elem.info.seed === id);
+      this.person = this.userInfo && this.userInfo[0]?.results[0];
     },
   },
   computed: {
@@ -20,11 +25,11 @@ export default {
     },
   },
   mounted() {
-    this.userInfo = this.usersInfo.filter((elem) => elem.info.seed === this.id);
+    this.filterPersonsData(this.id);
   },
   watch: {
     id(newId) {
-      this.userInfo = this.usersInfo.filter((elem) => elem.info.seed === newId);
+      this.filterPersonsData(newId);
     },
   },
   filters: {
@@ -36,7 +41,7 @@ export default {
 };
 </script>
 <template>
-  <div v-if="userInfo">
+  <div v-if="person">
     <div class="container pt-5">
       <h2 class="mb-4 text-white">Анкета</h2>
       <div class="card">
@@ -46,30 +51,30 @@ export default {
           </v-btn>
           <div class="row">
             <div class="col-md-4">
-              <img :src="userInfo[0]?.results[0].picture.large" alt="Фото" class="img-fluid mb-3">
+              <img :src="person.picture.large" alt="Фото" class="img-fluid mb-3">
             </div>
             <div class="col-md-8">
               <h2>
-                {{ `${userInfo[0]?.results[0].name.title}.
-                ${userInfo[0]?.results[0].name.first}
-                ${userInfo[0]?.results[0].name.last}` }}
+                {{ `${person.name.title}.
+                ${person.name.first}
+                ${person.name.last}` }}
               </h2>
-              <p><strong>Gender:</strong> {{ userInfo[0]?.results[0].gender }}</p>
-              <p><strong>Email:</strong> {{ userInfo[0]?.results[0].email }}</p>
-              <p><strong>Location:</strong> {{ userInfo[0]?.results[0].location.city }},
-                {{ userInfo[0]?.results[0].location.country }}</p>
-              <p><strong>Phone:</strong> {{ userInfo[0]?.results[0].phone }}</p>
-              <p><strong>Cell:</strong> {{ userInfo[0]?.results[0].cell }}</p>
+              <p><strong>Gender:</strong> {{ person.gender }}</p>
+              <p><strong>Email:</strong> {{ person.email }}</p>
+              <p><strong>Location:</strong> {{ person.location.city }},
+                {{ person.location.country }}</p>
+              <p><strong>Phone:</strong> {{ person.phone }}</p>
+              <p><strong>Cell:</strong> {{ person.cell }}</p>
               <p>
                 <strong>Date of Birth:</strong>
-                {{ userInfo[0]?.results[0].dob.date | formatDate }}
+                {{ person.dob.date | formatDate }}
               </p>
-              <p><strong>Age:</strong> {{ userInfo[0]?.results[0].dob.age }}</p>
+              <p><strong>Age:</strong> {{ person.dob.age }}</p>
               <p><strong>Registered Since:</strong>
-                {{ userInfo[0]?.results[0].registered.date | formatDate }}</p>
+                {{ person.registered.date | formatDate }}</p>
               <p><strong>Location Coordinates:</strong> Lat:
-                {{ userInfo[0]?.results[0].location.coordinates.latitude }},
-                Long: {{ userInfo[0]?.results[0].location.coordinates.longitude }}
+                {{ person.location.coordinates.latitude }},
+                Long: {{ person.location.coordinates.longitude }}
               </p>
             </div>
           </div>
