@@ -1,6 +1,15 @@
 <script>
 import Vue from 'vue';
 import UserCard from './UserCard.vue';
+import {
+  getFirstContainer,
+  handlerClick,
+  handleDragEnter,
+  handleDragStart,
+  handleDrop,
+  addNewUserCard,
+  removePreiousUserCard,
+} from '../helpers/helper';
 
 export default {
   name: 'KanbanBoard',
@@ -17,76 +26,25 @@ export default {
   components: {
     UserCard,
   },
-  mounted() {
-    this.firstContainer = document.querySelector(`[data-id="${this.containersDataId[0]}"]`);
-  },
   methods: {
-    handleDragEnter(event) {
-      event.preventDefault();
-      const { target } = event;
-
-      this.containersDataId.forEach((element) => {
-        if (target.getAttribute('data-id') === element) {
-          this.dropableContainer = target;
-        }
-      });
-    },
-    handlerClick(event) {
-      const { id } = event.target;
-      this.$router.push({ path: '/about', query: { id } });
-    },
-    handleDragStart(event) {
-      const data = {
-        element: event.target.outerHTML,
-        dataId: event.target.id,
-      };
-      const jsonData = JSON.stringify(data);
-      event.dataTransfer.setData('text/html', jsonData);
-      this.previousContainer = event.target.parentElement;
-    },
-    handleDrop(event) {
-      event.stopPropagation();
-      if (this.previousContainer !== this.dropableContainer) {
-        const draggedElement = JSON.parse(event.dataTransfer.getData('text/html'));
-        this.isDropped = true;
-        this.droppedElementId = draggedElement.dataId;
-        this.dropableContainer.innerHTML += draggedElement.element;
-        this.dropableContainer.childNodes.forEach((element) => {
-          element.addEventListener('dragstart', this.handleDragStart);
-          element.addEventListener('click', this.handlerClick);
-        });
-      }
-    },
-    addNewUserCard() {
-      const NewUserCardComponent = Vue.extend(UserCard);
-      const newUserCardInstance = new NewUserCardComponent({
-        propsData: {
-          handleDragStart: this.handleDragStart,
-          handlerClick: this.handlerClick,
-        },
-      });
-      newUserCardInstance.$store = this.$store;
-      newUserCardInstance.$mount();
-      this.firstContainer.appendChild(newUserCardInstance.$el);
-    },
-
-    updateUser(userInfo) {
-      if (userInfo) {
-        this.$store.dispatch('updateUser', userInfo);
-      }
-    },
+    getFirstContainer,
+    handlerClick,
+    handleDragEnter,
+    handleDragStart,
+    handleDrop,
+    addNewUserCard,
+    removePreiousUserCard,
+  },
+  mounted() {
+    this.firstContainer = this.getFirstContainer(this.containersDataId[0]);
   },
   watch: {
     isDropped(value) {
       if (value) {
-        this.previousContainer.childNodes.forEach((element) => {
-          if (element.id === this.droppedElementId) {
-            element.remove();
-            this.isDropped = false;
-          }
-        });
+        this.removePreiousUserCard();
+
         if (this.firstContainer.childNodes.length === 0) {
-          this.addNewUserCard();
+          this.addNewUserCard(Vue, UserCard);
         }
       }
     },
@@ -105,7 +63,6 @@ export default {
             >
               <template v-if="containerId === containersDataId[0]">
                 <UserCard v-for="index in 4" :key="index" :index="index"
-                    :updateUser="updateUser"
                     :handleDragStart="handleDragStart"
                     :handlerClick="handlerClick"
                   />

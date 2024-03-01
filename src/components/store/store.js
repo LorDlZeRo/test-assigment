@@ -13,11 +13,6 @@ export default new Vuex.Store({
       // Vue.set(state, 'user', user);
     },
   },
-  actions: {
-    updateUser(context, newUser) {
-      context.commit('setUser', newUser);
-    },
-  },
   getters: {
     getUser(state) {
       return state.user;
